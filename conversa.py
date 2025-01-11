@@ -1,42 +1,48 @@
-# Importar librerías necesarias
-from langchain.memory import ConversationBufferMemory
+import os
 from langchain.chat_models import ChatOpenAI
-from langchain.chains import ConversationChain
 
-# Inicializar el modelo
-def iniciar_bot(api_key: str):
-    # Configurar el modelo y la memoria
-    llm = ChatOpenAI(
-        model="gpt-3.5-turbo",  # Puedes usar "gpt-4" si tienes acceso
-        openai_api_key=api_key,
-        temperature=0.7
-    )
-    memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
-    conversation = ConversationChain(llm=llm, memory=memory)
-    return conversation
+def get_openai_api_key():
+    """
+    Obtiene la API key de OpenAI desde la variable de entorno o solicita al usuario que la ingrese.
 
-# Función principal
+    Returns:
+        str: API key de OpenAI.
+    """
+    # Intentar obtener la API key desde la variable de entorno
+    api_key = os.getenv("OPENAI_API_KEY")
+    
+    if not api_key:
+        print("No se encontró la API key de OpenAI en las variables de entorno.")
+        api_key = input("Por favor, ingresa tu API key de OpenAI: ").strip()
+    
+    return api_key
+
 def main():
-    import getpass
+    """
+    Programa principal que utiliza la API key de OpenAI para interactuar con el modelo de LangChain.
+    """
+    # Obtener la API key
+    openai_api_key = get_openai_api_key()
 
-    # Solicitar la API key
-    api_key = getpass.getpass("Introduce tu API key de OpenAI: ")
+    # Configurar el modelo
+    try:
+        llm = ChatOpenAI(model="gpt-4", temperature=0.7, openai_api_key=openai_api_key)
+        print("Modelo configurado correctamente.")
+    except Exception as e:
+        print(f"Error al configurar el modelo: {e}")
+        return
 
-    # Iniciar el bot
-    bot = iniciar_bot(api_key)
-
-    print("Bot: ¡Hola! Soy tu asistente virtual.")
-    nombre = input("Bot: ¿Cómo te llamas? ")
-    print(f"Bot: ¡Encantado de conocerte, {nombre}!")
-
-    # Iniciar la conversación
+    # Ejemplo de interacción con el modelo
     while True:
-        user_input = input(f"{nombre}: ")
-        if user_input.lower() in ["salir", "adiós"]:
-            print("Bot: ¡Hasta luego! Que tengas un gran día.")
+        prompt = input("\nEscribe tu mensaje (o 'salir' para terminar): ")
+        if prompt.lower() == "salir":
+            print("¡Hasta luego!")
             break
-        respuesta = bot.run(f"{nombre} dice: {user_input}")
-        print(f"Bot: {respuesta}")
+        try:
+            response = llm.predict(prompt)
+            print(f"\nRespuesta:\n{response}")
+        except Exception as e:
+            print(f"Error al interactuar con el modelo: {e}")
 
 if __name__ == "__main__":
     main()
