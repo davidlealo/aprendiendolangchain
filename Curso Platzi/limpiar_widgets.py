@@ -1,6 +1,6 @@
 import nbformat
 
-ruta = "notebook_1_modelos_prompts_y_cadenas_333eebfc-c9ab-4201-91b8-d7b1a14ec5d3.ipynb"
+ruta = "notebook_2_manejo_de_documentos_y_embeddings_dabc9af0-4195-4b9c-ba3d-d852edef215b.ipynb"
 
 with open(ruta, "r", encoding="utf-8") as f:
     nb = nbformat.read(f, as_version=4)
